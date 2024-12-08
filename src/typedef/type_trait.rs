@@ -1,4 +1,3 @@
-use super::value::Serialization;
 use super::{type_id::TypeId, value::Value};
 use super::{type_utils::*, type_id};
 
@@ -97,13 +96,18 @@ pub trait Type {
         }
     }    
 
-    fn serialize_value(val: &Value) -> Option<Vec<u8>> {
-        Value::serialize(val)
+    /// get the length of the data actual need space
+    /// such as:
+    /// int for 4bytes
+    /// bigint for 8 bytes
+    /// varchar depends on itself
+    fn get_length(val: &Value) -> u32 {
+        return val.get_length();
     }
 
-    fn deserialize_value(bytes: &Vec<u8>) -> Option<Value> {
-        Value::deserialize(bytes)
-    }
+    fn serialize_value(val: &Value) -> Vec<u8>;
+
+    fn deserialize_value(bytes: &Vec<u8>) -> Value;
 
 
     //TODO:
@@ -119,13 +123,10 @@ pub trait Type {
         val.get_data()
     }
 
-    /// get the length of the serialization Value
-    fn get_length(val: &Value) -> usize {
-        return val.get_serilaize_len()
-    }
-
+    
     fn get_type_id(val: &Value) -> TypeId {
         val.get_type()
     }
+
 }
 

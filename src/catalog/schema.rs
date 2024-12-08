@@ -6,6 +6,7 @@ pub struct Schema {
     columns: Vec<Column>,
 
     // the indices of all un-inlined col in `columns`
+    // (means varchar, or blob etc..)
     uninlined_inds: Vec<u32>,
     is_tuple_inlined: bool,
     len: u32,
@@ -43,6 +44,17 @@ impl Schema {
         s.clone()
     }
 
+    pub fn get_column_count(&self) -> usize {
+        self.columns.len()
+    }
+
+    pub fn get_column(&self, ind: usize) -> Result<&Column, String> {
+        if ind >= self.columns.len() {
+            return Err(format!("Column index {} out of schema range {}", ind, self.columns.len()));
+        }
+        Ok(&self.columns[ind])
+    }
+
     pub fn get_columns(&self) -> &Vec<Column> {
         &self.columns
     }
@@ -59,6 +71,9 @@ impl Schema {
         self.uninlined_inds.len()
     }
 
+    // if varchar or other unlined column, return a u32 size pointer
+    // if int/bigint or other fixed data, return bytes len as its self size, 
+    //   such as 4 for int
     pub fn get_len(&self) -> u32 {
         self.len
     }

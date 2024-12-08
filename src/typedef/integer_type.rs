@@ -1,3 +1,5 @@
+use std::io::Read;
+
 use super::type_id;
 use super::type_trait::*;
 use super::value::*;
@@ -57,6 +59,17 @@ impl MathOp for IntegerType {
 
 /// Use default implementation is ok
 impl Type for IntegerType {
+    fn serialize_value(val: &Value) -> Vec<u8> {
+        return val.get_data()
+    }
+
+    fn deserialize_value(bytes: &Vec<u8>) -> Value {
+        assert_eq!(size_of::<i32>(), bytes.len());
+        let bytes = unsafe { *(bytes.as_ptr() as *const [u8; 4]) };
+        let val = i32::from_ne_bytes(bytes);
+
+        Value::new_integer(type_id::TypeId::INTEGER, val)
+    }
 }
 
 
@@ -113,20 +126,20 @@ mod tests {
         let a = Value::new_integer(TypeId::INTEGER, 12);
 
         let bytes = IntegerType::serialize_value(&a);
-        println!("{:#?} {}", bytes.clone().unwrap(), bytes.clone().unwrap().len());
+        println!("{:#?} {}", bytes.clone(), bytes.clone().len());
 
-        let recover = IntegerType::deserialize_value(bytes.unwrap().clone().as_ref());
-        println!("{:#?}", IntegerType::to_string(&recover.unwrap()));
+        let recover = IntegerType::deserialize_value(bytes.clone().as_ref());
+        println!("{:#?}", IntegerType::to_string(&recover));
 
         // check varchar serialization
         let b = Value::new_varchar(TypeId::VARCHAR, "test name");
 
 
         let bytes = IntegerType::serialize_value(&b);
-        println!("{:#?} {}", bytes.clone().unwrap(), bytes.clone().unwrap().len());
+        println!("{:#?} {}", bytes.clone(), bytes.clone().len());
 
-        let recover = IntegerType::deserialize_value(bytes.unwrap().clone().as_ref());
-        println!("{:#?}", IntegerType::to_string(&recover.unwrap()));
+        let recover = IntegerType::deserialize_value(bytes.clone().as_ref());
+        println!("{:#?}", IntegerType::to_string(&recover));
 
     }
 

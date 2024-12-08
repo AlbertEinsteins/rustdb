@@ -5,7 +5,8 @@ pub struct Column {
     column_name: String,
     type_id: TypeId,
 
-    offset_index: u32,
+    // the relative pos in the tuple bytes
+    offset: u32,
     // when column is not-inlined (means varchar, or blob etc..), we use variabel_len to represent the length
     variable_len: u32,
     // when column is inlined (means not varchar type, likewise blob etc..), we use fixed_len to represent the length
@@ -20,7 +21,7 @@ impl Column {
             type_id: t,
             fixed_len: Self::compute_fixed_len(t),
             variable_len: 0,
-            offset_index: 0,
+            offset: 0,
         }
     }
 
@@ -31,7 +32,7 @@ impl Column {
             type_id: t,
             fixed_len: Self::compute_fixed_len(t),
             variable_len: var_len,
-            offset_index: 0,
+            offset: 0,
         }
     }
 
@@ -59,27 +60,16 @@ impl Column {
         }
     }
 
-    pub fn get_offset_index(&self) -> u32 {
-        self.offset_index
+    pub fn get_offset(&self) -> u32 {
+        self.offset
     }
 
     pub fn get_type(&self) -> TypeId {
         self.type_id
     }
 
-    pub fn to_string(&self) -> String {
-        match self.type_id {
-            TypeId::VARCHAR => {
-                format!("{{ {}:{}({}) }}", self.column_name, self.type_id.to_string(), self.variable_len)
-            },
-            _ => {
-                format!("{{ {}:{} }}", self.column_name, self.type_id.to_string())
-            }
-        }
-    }
-
     pub fn set_offset(&mut self, off_index: u32) {
-        self.offset_index = off_index
+        self.offset = off_index
     }
 
     fn compute_fixed_len(t: TypeId) -> u32 {
@@ -97,6 +87,19 @@ impl Column {
             },
             _ => {
                 panic!("Not supprted type value")
+            }
+        }
+    }
+}
+
+impl ToString for Column {
+    fn to_string(&self) -> String {
+        match self.type_id {
+            TypeId::VARCHAR => {
+                format!("{{{{ {}:{}({}) }}}}", self.column_name, self.type_id.to_string(), self.variable_len)
+            },
+            _ => {
+                format!("{{{{ {}:{} }}}}", self.column_name, self.type_id.to_string())
             }
         }
     }

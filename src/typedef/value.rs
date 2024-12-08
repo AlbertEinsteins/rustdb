@@ -1,4 +1,4 @@
-use super::{type_id::{TypeId}, integer_type::IntegerType, type_trait::Type, limits::{DB_VALUE_NULL}};
+use super::{integer_type::IntegerType, limits::DB_VALUE_NULL, type_id::TypeId, type_trait::Type, varchar_type::VarcharType};
 
 
 #[derive(Debug, Clone)]
@@ -9,6 +9,7 @@ pub struct Value {
 }
 
 impl Value {
+    // ========================= new method ======================
     pub fn new_null(type_id: TypeId) -> Self {
         Self {
             val: None,
@@ -42,7 +43,7 @@ impl Value {
         Value::new(type_id, bytes)
     }
 
-    ///========================================= static method of struct =====================
+    ///========================================= method of struct =====================
     // transfer data to another type with no check
     pub fn as_mut_ptr<T>(&mut self) -> &mut T {
         match self.val.as_mut() {
@@ -66,21 +67,23 @@ impl Value {
         }
     }
 
+    // dp
+    pub fn get_length(&self) -> u32 {
+        match &self.val {
+            None => 0,
+            Some(bytes) => {
+                return bytes.len() as u32
+            }
+        }
+    }
+
+
     // get data slice
     pub fn get_data(&self) -> Vec<u8> {
         match self.val.clone() {
             None => Vec::new(),
             Some(val) => val
         }
-    }
-
-    pub fn get_serilaize_len(&self) -> usize {
-        let mut size = size_of::<u32>() + size_of::<TypeId>();
-
-        if let Some(bytes) = &self.val {
-            size += bytes.len();
-        }
-        size
     }
 
     pub fn is_null(&self) -> bool {
@@ -91,47 +94,56 @@ impl Value {
         self.type_id
     }
 
-}
+    pub fn to_string(&self) -> String {
+        if self.len == DB_VALUE_NULL {
+            return "null".to_owned();
+        }
 
-
-pub trait Serialization {
-    fn serialize(val: &Value) -> Option<Vec<u8>>;
-    fn deserialize(bytes: &Vec<u8>) -> Option<Value>;
-}
-
-
-impl Serialization for Value {
-    /// serilize the value itself, accorrding to a protocol in which
-    /// | type_id(1B)| length (4B) | data |
-    fn serialize(val: &Value) -> Option<Vec<u8>> {
-        let mut buf = Vec::new();
-        buf.push(val.get_type() as u8);
-
-        let body_bytes = val.get_data();
-        let length = body_bytes.len() as u32;
-        buf.extend_from_slice(&length.to_ne_bytes());
-        buf.extend(body_bytes);
-
-        Some(buf)
-    }
-
-    /// the revered operation used in serilize
-    fn deserialize(bytes: &Vec<u8>) -> Option<Value> {
-        if bytes.len() < 5 {
-            None
-        } else {
-            let type_id: TypeId = bytes[0].into();
-            let size_slice = &bytes[1..5];
-            let size: u32 = u32::from_ne_bytes(size_slice.try_into()
-                                                            .expect("Slice with incorrent length"));
-            
-            // check buffer 
-            let expected_size = 1 + 4 + size;
-            if bytes.len() != expected_size as usize {
-                panic!("Error, deserilization err value, the bytes size missmatch");
+        match self.get_type() {
+            TypeId::INTEGER => {
+                let val = unsafe { * (self.val.clone().unwrap().as_ptr() as *const i32) };
+                format!("{}", val)
+            },
+            TypeId::VARCHAR => {
+                // check len only shows the first 10 characters
+                let str = String::from_utf8(self.val.clone().unwrap()).unwrap();
+                if str.len() <= 10 {
+                    return str
+                }
+                return str[..10].to_owned();
+            },
+            _ => {
+                panic!("Not support yet.");
             }
-            
-            Some(Value::new(type_id, &bytes[5..]))
         }
     }
+
+    // ======================== static method =========================
+    pub fn serialize(val: &Value) -> Vec<u8> {
+        match val.get_type() {
+            TypeId::VARCHAR => {
+                VarcharType::serialize_value(val)
+            },
+            TypeId::INTEGER => {
+                IntegerType::serialize_value(val)
+            },
+            _ => {
+                panic!("Err: not support type");
+            }
+        }
+    }
+    pub fn deserialize(bytes: &Vec<u8>, type_id: TypeId) -> Result<Value, String> {
+        match type_id {
+            TypeId::VARCHAR => {
+                Ok(VarcharType::deserialize_value(bytes))
+            },
+            TypeId::INTEGER => {
+                Ok(IntegerType::deserialize_value(bytes))
+            },
+            _ => {
+                Err(format!("Error: not support type"))
+            }
+        }
+    }
+
 }
