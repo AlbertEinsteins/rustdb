@@ -1,3 +1,5 @@
+#![allow(warnings)]
+
 use super::{type_id::TypeId, value::Value};
 use super::{type_utils::*, type_id};
 

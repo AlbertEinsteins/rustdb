@@ -1,3 +1,5 @@
+#![allow(warnings)]
+
 pub const INVALID_PAGE_ID: i32 = -1;
 pub const INVALID_TXN_ID: i32 = -1;
 pub const INVALID_LSN: i32 = -1;

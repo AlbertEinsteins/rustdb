@@ -1,4 +1,4 @@
-use std::io::Read;
+#![allow(warnings)]
 
 use super::type_id;
 use super::type_trait::*;
