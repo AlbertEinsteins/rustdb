@@ -1,5 +1,9 @@
+use std::sync::Arc;
+
 use super::column::Column;
 
+
+pub type SchemaRef = Arc<Schema>;
 
 #[derive(Debug, Clone)]
 pub struct Schema {
@@ -55,6 +59,15 @@ impl Schema {
         Ok(&self.columns[ind])
     }
 
+    pub fn get_column_idx(&self, col_name: &str) -> Result<usize, String> {
+        for idx in 0..self.columns.len() {
+            if self.columns[idx].get_name() == col_name {
+                return Ok(idx);
+            }
+        }
+        Err(format!("Column not found"))
+    }
+
     pub fn get_columns(&self) -> &Vec<Column> {
         &self.columns
     }
@@ -63,7 +76,7 @@ impl Schema {
         self.is_tuple_inlined
     }
 
-    pub fn get_uninlined_index(&self) -> &Vec<u32> {
+    pub fn get_uninlined_inds(&self) -> &Vec<u32> {
         &self.uninlined_inds
     }
 

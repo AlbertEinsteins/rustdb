@@ -9,3 +9,4 @@ bincode = { version="1.3.2" }
 tokio = { version="1", features=["full"] }
 rand = "0.8"
 sqlparser = { git = "https://github.com/apache/datafusion-sqlparser-rs" }
+tabled = { git = "https://github.com/zhiburt/tabled" }

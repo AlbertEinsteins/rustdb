@@ -36,6 +36,16 @@ impl Column {
         }
     }
 
+    pub fn replicate(&self, column_name: String) -> Self {
+        Self {
+            column_name,
+            type_id: self.type_id,
+            fixed_len: self.fixed_len,
+            variable_len: self.variable_len,
+            offset: self.offset
+        }
+    }
+
     pub fn is_inlined(&self) -> bool {
         self.type_id != TypeId::VARCHAR
     } 

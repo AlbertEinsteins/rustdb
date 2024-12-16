@@ -9,6 +9,7 @@ pub const BUFFER_POOL_SIZE: i32 = 10;
 pub const BUCKET_SIZE: i32 = 50;
 pub const LRUK_REPLACER_K: i32 = 10;
 
+pub const VARCHAR_DEFAULT_LENGTH: u32 = 128;
 
 
 // =================== define the type alias ================

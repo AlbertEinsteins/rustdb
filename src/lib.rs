@@ -15,3 +15,10 @@ pub mod buffer;
 pub mod binder;
 
 pub mod transaction;
+
+// execution engine
+pub mod execution;
+
+pub mod planner;
+
+pub mod optimizer;
