@@ -4,7 +4,7 @@ use sqlparser::{ast::{self, CharacterLength, ColumnDef, DataType, Expr, GroupByE
 
 use crate::{binder::{bound_table_ref::BoundTable, expression::{bound_alias::BoundAlias, bound_column_ref::BoundColumn, bound_constant::BoundConstant, bound_star::BoundStar}, table_ref::bound_base_table::BoundBaseTableRef}, catalog::{catalog::{CataLog, CataLogRef}, column::Column, schema::Schema}, typedef::{type_id::TypeId, value_factory::ValueFactory}};
 
-use super::{bound_expression::BoundExpression, bound_table_ref::BoundTableRef, statement::{create_stmt::CreateStmt, insert_stmt::InsertStmt, select_stmt::SelectStmt}, table_ref::{bound_empty_table::BoundEmptyTable, bound_values_list_table::BoundValuesList}, bound_statement::BoundStatement};
+use super::{bound_expression::BoundExpression, bound_statement::BoundStatement, bound_table_ref::BoundTableRef, expression::bound_binary_op::{BinaryOpType, BoundBinaryOp}, statement::{create_stmt::CreateStmt, insert_stmt::InsertStmt, select_stmt::SelectStmt}, table_ref::{bound_empty_table::BoundEmptyTable, bound_values_list_table::BoundValuesList}};
 
 
 pub struct Binder {
@@ -169,7 +169,7 @@ impl Binder {
         // bind where
         let mut where_cond = None;
         if let Some(selection) = &sel.selection {
-            where_cond = Some(Self::bind_where(selection)?);
+            where_cond = Some(self.bind_where(selection)?);
         }
 
         // bind group by
@@ -293,7 +293,7 @@ impl Binder {
         Ok(expr_list)
     }
 
-    // we rewrite * to the actual column names
+    // we rewrite * to the actual column names with a bound table name
     pub fn get_all_columns(&self) -> Vec<Box<BoundExpression>> {
         let scope = self.scope.as_ref().unwrap();
         match scope.as_ref() {
@@ -379,6 +379,18 @@ impl Binder {
                     ) 
                 );
             },
+            Expr::BinaryOp { left, op, right } => {
+                let bound_left = self.bind_expr(&left)?;
+                let bound_right = self.bind_expr(&right)?;
+
+                return Ok(
+                    Box::new(
+                        BoundExpression::BinaryOp(
+                            Box::new(BoundBinaryOp::new(*bound_left, *bound_right, BinaryOpType::from(op.clone())))
+                        )
+                    )
+                )
+            }
             // TODO: other types handles
             _ => {
                return Err(String::from("Not support expr"));
@@ -534,8 +546,8 @@ impl Binder {
         }
     }
 
-    pub fn bind_where(selection: &Expr) -> Result<Box<BoundExpression>, String> {
-        todo!()
+    pub fn bind_where(&self, selection: &Expr) -> Result<Box<BoundExpression>, String> {
+        self.bind_expr(selection)
     }
 
     pub fn bind_group_by() -> Result<Vec<Box<BoundExpression>>, String> {

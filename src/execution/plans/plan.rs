@@ -2,7 +2,7 @@
 
 use std::{sync::Arc, fmt::Display, process::ChildStderr};
 
-use crate::{catalog::{schema::{Schema, SchemaRef}, column::Column}, common::config::{table_id_t, VARCHAR_DEFAULT_LENGTH}, execution::expressions::expr::ExpressionRef, binder::table_ref::bound_base_table::BoundBaseTableRef, typedef::type_id::TypeId};
+use crate::{binder::{bound_expression::BoundExpression, table_ref::bound_base_table::BoundBaseTableRef}, catalog::{column::Column, schema::{Schema, SchemaRef}}, common::config::{table_id_t, VARCHAR_DEFAULT_LENGTH}, execution::expressions::expr::ExpressionRef, typedef::type_id::TypeId};
 
 
 
@@ -242,7 +242,6 @@ impl PlanNodeFeat for ValuesPlan {
 
 //========================== Insert Plan ==================
 #[derive(Debug)]
-
 pub struct InsertPlan {
     pub output_schema: Schema,
     pub children: Vec<PlanNodeRef>,
@@ -270,5 +269,34 @@ impl PlanNodeFeat for InsertPlan {
 
     fn output_schema(&self) -> &Schema {
         &self.output_schema        
+    }
+}
+
+
+//============================= Filter Plan =========================//
+// related to where clause
+
+pub struct FilterPlan {
+    pub output_schema: SchemaRef,
+    pub children: Vec<PlanNodeRef>,
+    pub predicate: BoundExpression
+}
+
+
+impl FilterPlan {
+    pub fn new()
+}
+
+impl PlanNodeFeat for FilterPlan {
+    fn plannode_tostring(&self) -> String {
+        format!("FilterPlan {{{{ predicate={} }}}}", self.predicate)
+    }
+
+    fn get_children(&self) -> &Vec<PlanNodeRef> {
+        
+    }
+
+    fn output_schema(&self) -> &Schema {
+        
     }
 }

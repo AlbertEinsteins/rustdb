@@ -1,4 +1,4 @@
-use super::{integer_type::IntegerType, limits::DB_VALUE_NULL, type_id::TypeId, type_trait::Type, varchar_type::VarcharType};
+use super::{integer_type::IntegerType, limits::DB_VALUE_NULL, type_id::TypeId, type_trait::{CmpBool, Compare, Type}, varchar_type::VarcharType};
 
 
 #[derive(Debug, Clone)]
@@ -7,6 +7,28 @@ pub struct Value {
     type_id: TypeId,
     len: u32,
 }
+
+
+macro_rules! generate_compare_func {
+    ($($func: ident), *) => {
+        $(
+            pub fn $func(&self, other: &Value) -> CmpBool {
+                match self.type_id {
+                    TypeId::INTEGER => {
+                        IntegerType::$func(self, other)
+                    },
+                    TypeId::VARCHAR => {
+                        VarcharType::$func(self, other)
+                    },
+                    _ => {
+                        panic!("Not support type");
+                    }
+                }
+            }
+        )*
+    };
+}
+
 
 impl Value {
     // ========================= new method ======================
@@ -117,6 +139,17 @@ impl Value {
             }
         }
     }
+
+    // define some compare methods
+    generate_compare_func!(
+        compare_less_than,
+        compare_less_than_equal,
+        compare_greater_than,
+        compare_greater_than_equal,
+        compare_equal,
+        compare_not_equal
+    );
+
 
     // ======================== static method =========================
     pub fn serialize(val: &Value) -> Vec<u8> {

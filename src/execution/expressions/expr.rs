@@ -4,7 +4,7 @@ use std::{fmt::Display, sync::Arc, thread::sleep};
 
 use crate::{typedef::{type_id::TypeId, value::Value}, storage::page_based::table::tuple::Tuple, catalog::schema::Schema};
 
-use super::{column_expr::ColumnValueExpr, constant_expr::ConstantExpr};
+use super::{column_expr::ColumnValueExpr, compare_expr::CompareExpr, constant_expr::ConstantExpr};
 
 
 pub type ExpressionRef = Arc<Expression>;
@@ -13,6 +13,7 @@ pub type ExpressionRef = Arc<Expression>;
 pub enum Expression {
     ColumnExpr(ColumnValueExpr),
     ConstantExpr(ConstantExpr),
+    CmpExpr(CompareExpr),
 }
 
 impl Expression {
@@ -62,8 +63,9 @@ pub trait ExpressionFeat {
 impl Display for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::ColumnExpr(column) => { f.write_str(&column.to_string()) }
-            Self::ConstantExpr(constant) => { f.write_str(&constant.to_string()) }
+            Self::ColumnExpr(column) => { f.write_str(&column.to_string()) },
+            Self::ConstantExpr(constant) => { f.write_str(&constant.to_string()) },
+            Self::CmpExpr(cmp_expr) => { f.write_str(&cmp_expr.to_string()) }
         }
     }
 }
