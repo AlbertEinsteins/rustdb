@@ -279,12 +279,12 @@ impl PlanNodeFeat for InsertPlan {
 pub struct FilterPlan {
     pub output_schema: SchemaRef,
     pub children: Vec<PlanNodeRef>,
-    pub predicate: BoundExpression
+    pub predicate: ExpressionRef
 }
 
 
 impl FilterPlan {
-    pub fn new(schema: SchemaRef, children: Vec<PlanNodeRef>, predicate: BoundExpression) -> Self {
+    pub fn new(schema: SchemaRef, children: Vec<PlanNodeRef>, predicate: ExpressionRef) -> Self {
         Self {
             output_schema: schema,
             children,
