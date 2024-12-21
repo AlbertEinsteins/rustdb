@@ -279,7 +279,7 @@ impl PlanNodeFeat for InsertPlan {
 pub struct FilterPlan {
     pub output_schema: SchemaRef,
     pub children: Vec<PlanNodeRef>,
-    pub predicate: BoundExpression
+    pub predicate: ExpressionRef
 }
 
 
