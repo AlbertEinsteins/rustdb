@@ -14,7 +14,8 @@ pub enum PlanNode {
     SeqScan(SeqScanPlan),
     Proj(ProjectionPlan),
     Insert(InsertPlan),
-    Values(ValuesPlan)
+    Values(ValuesPlan),
+    Filter(FilterPlan),
 }
 
 impl PlanNode {
@@ -24,6 +25,7 @@ impl PlanNode {
             PlanNode::Proj(proj) => { proj.output_schema() },
             PlanNode::Insert(insert) => { insert.output_schema() },
             PlanNode::Values(values) => { values.output_schema() },
+            PlanNode::Filter(filter) => { filter.output_schema() },
         }
     }
 }
@@ -37,6 +39,7 @@ impl Display for PlanNode {
             Self::Proj(proj) => { f.write_str(&proj.to_string(true)) }
             Self::Insert(insert) => { f.write_str(&insert.to_string(true)) },
             Self::Values(vals) => { f.write_str(&vals.to_string(true)) },
+            Self::Filter(filter) => { f.write_str(&filter.to_string(true)) },
         }
     }
 }
@@ -276,6 +279,7 @@ impl PlanNodeFeat for InsertPlan {
 //============================= Filter Plan =========================//
 // related to where clause
 
+#[derive(Debug)]
 pub struct FilterPlan {
     pub output_schema: SchemaRef,
     pub children: Vec<PlanNodeRef>,

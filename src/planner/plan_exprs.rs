@@ -1,6 +1,6 @@
 #![allow(warnings)]
 
-use crate::{binder::{bound_expression::{BoundExpression, BoundExpressionFeat}, expression::{bound_column_ref::BoundColumn, bound_constant::BoundConstant}}, execution::{expressions::{column_expr::ColumnValueExpr, constant_expr::ConstantExpr, expr::{Expression, ExpressionRef}}, plans::plan::{PlanNodeRef, PlanNode}}};
+use crate::{binder::{bound_expression::{BoundExpression, BoundExpressionFeat}, expression::{bound_binary_op::BoundBinaryOp, bound_column_ref::BoundColumn, bound_constant::BoundConstant}}, execution::{expressions::{column_expr::ColumnValueExpr, constant_expr::ConstantExpr, expr::{Expression, ExpressionRef}}, plans::plan::{PlanNode, PlanNodeRef}}};
 
 use super::planner::Planner;
 
@@ -14,8 +14,8 @@ impl Planner {
             BoundExpression::ColumnRef(col) => {
                 return self.plan_column_ref(col, children);
             },
-            BoundExpression::BinaryOp(b) => {
-
+            BoundExpression::BinaryOp(binary_op) => {
+                return self.plan_binary_op(binary_op, children);
             },
             BoundExpression::Alias(alias) => {
 
@@ -29,6 +29,10 @@ impl Planner {
         }
 
         todo!()
+    }
+
+    pub fn plan_binary_op(&self, binary_op: &Box<BoundBinaryOp>, children: &Vec<PlanNodeRef>) -> Result<(String, ExpressionRef), String> {
+        
     }
 
     pub fn plan_constant(&self, constant: &Box<BoundConstant>, children: &Vec<PlanNodeRef>) -> Result<ExpressionRef, String> {

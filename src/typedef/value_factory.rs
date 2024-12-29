@@ -1,4 +1,4 @@
-use super::{type_id::TypeId, value::*};
+use super::{type_id::TypeId, type_trait::CmpBool, value::*};
 
 pub struct ValueFactory { }
 
@@ -16,15 +16,20 @@ impl ValueFactory {
 
     #[inline]
     pub fn get_null_value(t: TypeId) -> Value {
-        match t {
-            TypeId::INTEGER => {
-                Value::new_null(t)
+        Value::new_null(t)
+    }
+
+    #[inline]
+    pub fn get_boolean_value(b: CmpBool) -> Value {
+        match b {
+            CmpBool::CmpTrue => {
+                Value::new_boolean(TypeId::BOOLEAN, true)
             },
-            TypeId::VARCHAR => {
-                Value::new_null(t)
+            CmpBool::CmpFalse => {
+                Value::new_boolean(TypeId::BOOLEAN, false)
             },
-            _ => {
-                panic!("Not implemented yet.")
+            CmpBool::CmpNull => {
+                Value::new_null(TypeId::BOOLEAN)
             }
         }
     }
