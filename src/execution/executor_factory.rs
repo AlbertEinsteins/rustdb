@@ -2,7 +2,7 @@
 
 use crate::execution::executors::{seqscan_executor::SeqScanExecutor, insert_executor::InsertExecutor};
 
-use super::{executor_context::ExecutorContextRef, executors::{executor::Executor, proj_executor::ProjectExecutor, values_executor::ValuesExecutor}, plans::plan::{PlanNode, PlanNodeRef}};
+use super::{executor_context::ExecutorContextRef, executors::{executor::Executor, filter_executor::FilterExecutor, proj_executor::ProjectExecutor, values_executor::ValuesExecutor}, plans::plan::{FilterPlan, PlanNode, PlanNodeRef}};
 
 pub struct ExecutorFactory {
 }
@@ -29,6 +29,10 @@ impl ExecutorFactory {
             PlanNode::Values(value_plan) => {
                 return Box::new(ValuesExecutor::new(plan, ctx));
             },
+            PlanNode::Filter(filter_plan) => {
+                let child_exec = Self::create_executor(filter_plan.get_child_plan(), ctx.clone());
+                return Box::new(FilterExecutor::new(plan, child_exec, ctx));
+            }
             _ => {
                 panic!("not support type");
             }

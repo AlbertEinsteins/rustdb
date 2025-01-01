@@ -15,7 +15,7 @@ impl Planner {
                 return self.plan_column_ref(col, children);
             },
             BoundExpression::BinaryOp(binary_op) => {
-                return self.plan_binary_op(binary_op, children);
+                return Ok((Self::UNAMED_COLUMN.to_owned(), self.plan_binary_op(binary_op, children)?));
             },
             BoundExpression::Alias(alias) => {
 
@@ -31,8 +31,10 @@ impl Planner {
         todo!()
     }
 
-    pub fn plan_binary_op(&self, binary_op: &Box<BoundBinaryOp>, children: &Vec<PlanNodeRef>) -> Result<(String, ExpressionRef), String> {
-        
+    pub fn plan_binary_op(&self, binary_op: &Box<BoundBinaryOp>, children: &Vec<PlanNodeRef>) -> Result<ExpressionRef, String> {
+        let (_, left_expr) = self.plan_expression(&binary_op.left_arg, children)?; 
+        let (_, right_expr) = self.plan_expression(&binary_op.right_arg, children)?; 
+        return self.get_binary_op_expr(&binary_op.op, left_expr, right_expr);
     }
 
     pub fn plan_constant(&self, constant: &Box<BoundConstant>, children: &Vec<PlanNodeRef>) -> Result<ExpressionRef, String> {

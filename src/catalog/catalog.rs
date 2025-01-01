@@ -8,6 +8,7 @@ use super::{schema::Schema, column::Column};
 
 
 pub type TableInfoRef = Arc<TableInfo>;
+#[derive(Debug)]
 pub struct TableInfo {
     pub schema: Schema,
     pub table_name: String,
@@ -19,6 +20,7 @@ pub struct TableInfo {
 
 pub type CataLogRef = Arc<RefCell<CataLog>>;
 
+#[derive(Debug)]
 pub struct CataLog {
     // bpm
     bpm: Arc<BufferPoolManager>,

@@ -233,7 +233,11 @@ mod tests {
         let mut instance = DBInstance::new("test.db")?;
         generate_test_table(&instance); 
 
-        let sql = "insert into t1 values (1, 'test1', 'man', 1), (2, 'test2', 'female', 2)";
+        let sql = "insert into t1 values 
+                            (1, 'test1', 'male', 1), 
+                            (2, 'test2', 'female', 2),
+                            (3, 'test3', 'female', 3),
+                            (4, 'test4', 'female', 4)";
         let txn = Arc::new(Transaction::new());
         
         let res = instance.execute_sql_txn(sql, txn);
@@ -241,7 +245,7 @@ mod tests {
             println!("{}", res.unwrap_err())
         }
 
-        let sql = "select * from t1 where a = 1";
+        let sql = "select * from t1 where c='female' and d=2";
         let txn = Arc::new(Transaction::new());
         
         let res = instance.execute_sql_txn(sql, txn);

@@ -8,6 +8,7 @@ use crate::{catalog::catalog::CataLogRef, transaction::transaction::{Transaction
 //TOOD: a context associated with an executor
 pub type ExecutorContextRef = Arc<ExecutorContext>;
 
+#[derive(Debug)]
 pub struct ExecutorContext {
     catalog: CataLogRef,
     txn: TransactionRef,

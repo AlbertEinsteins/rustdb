@@ -1,6 +1,6 @@
 #![allow(warnings)]
 
-use std::sync::Arc;
+use std::{borrow::Borrow, sync::Arc};
 
 use crate::{binder::{bound_table_ref::{BoundTable, BoundTableRef}, statement::select_stmt::SelectStmt}, catalog::schema::{Schema, SchemaRef}, execution::plans::plan::{FilterPlan, PlanNode, PlanNodeRef, ProjectionPlan, ValuesPlan}};
 
@@ -28,7 +28,7 @@ impl Planner {
             let out_schema = plan.get_output_schema();
             
             plan = PlanNodeRef::new(PlanNode::Filter(
-                FilterPlan::new(SchemaRef::new(Schema::copy(out_schema)), vec![plan], expr)
+                FilterPlan::new(SchemaRef::new(Schema::copy(out_schema)), vec![plan], expr, )
             ));
         }
 

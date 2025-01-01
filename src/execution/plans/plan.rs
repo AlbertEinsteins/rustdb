@@ -2,7 +2,7 @@
 
 use std::{sync::Arc, fmt::Display, process::ChildStderr};
 
-use crate::{binder::{bound_expression::BoundExpression, table_ref::bound_base_table::BoundBaseTableRef}, catalog::{column::Column, schema::{Schema, SchemaRef}}, common::config::{table_id_t, VARCHAR_DEFAULT_LENGTH}, execution::expressions::expr::ExpressionRef, typedef::type_id::TypeId};
+use crate::{binder::{bound_expression::BoundExpression, table_ref::bound_base_table::BoundBaseTableRef}, catalog::{column::Column, schema::{Schema, SchemaRef}}, common::config::{table_id_t, VARCHAR_DEFAULT_LENGTH}, execution::{executor_context::ExecutorContextRef, expressions::expr::ExpressionRef}, typedef::type_id::TypeId};
 
 
 
@@ -283,7 +283,7 @@ impl PlanNodeFeat for InsertPlan {
 pub struct FilterPlan {
     pub output_schema: SchemaRef,
     pub children: Vec<PlanNodeRef>,
-    pub predicate: ExpressionRef
+    pub predicate: ExpressionRef,
 }
 
 
@@ -294,6 +294,11 @@ impl FilterPlan {
             children,
             predicate,
         }
+    }
+
+    pub fn get_child_plan(&self) -> PlanNodeRef {
+        assert!(1 == self.children.len(), "The filter plan could only have one child");
+        self.children[0].clone()
     }
 }
 

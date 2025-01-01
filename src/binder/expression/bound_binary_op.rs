@@ -6,9 +6,9 @@ use crate::binder::bound_expression::{BoundExpression, BoundExpressionFeat};
 
 #[derive(Debug)]
 pub struct BoundBinaryOp {
-    op: BinaryOpType,
-    left_arg: BoundExpression,
-    right_arg: BoundExpression,
+    pub op: BinaryOpType,
+    pub left_arg: BoundExpression,
+    pub right_arg: BoundExpression,
 }
 
 
@@ -26,6 +26,10 @@ pub enum BinaryOpType {
     LtEq,
     NEq,
     Eq,
+
+    // and or
+    And,
+    Or,
 }
 
 impl Display for BinaryOpType {
@@ -40,7 +44,9 @@ impl Display for BinaryOpType {
             Self::Lt => { f.write_str("<") },
             Self::LtEq => { f.write_str("<=") },
             Self::NEq => { f.write_str("!=") },
-            Self::Eq => { f.write_str("=") }
+            Self::Eq => { f.write_str("=") },
+            Self::And => { f.write_str("and") },
+            Self::Or => { f.write_str("or") }
         }
     }
 }
@@ -74,7 +80,13 @@ impl From<BinaryOperator> for BinaryOpType {
             }
             BinaryOperator::Eq => {
                 Self::Eq
-            }
+            },
+            BinaryOperator::And => {
+                Self::And
+            },
+            BinaryOperator::Or => {
+                Self::Or
+            },
             _ => {
                 panic!("Not support operator type");
             }

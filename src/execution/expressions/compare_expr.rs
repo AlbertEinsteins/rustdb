@@ -42,6 +42,10 @@ pub struct CompareExpr {
 }
 
 impl CompareExpr {
+    pub fn new(cmp_type: CmpType, children: Vec<ExpressionRef>) -> Self {
+        Self { cmp_type, children, rtn_type: TypeId::BOOLEAN }
+    }
+
     pub fn get_child_at(&self, idx: usize) -> &Expression {
         &self.children[idx]
     }
@@ -60,7 +64,10 @@ impl CompareExpr {
 
 impl ExpressionFeat for CompareExpr {
     fn evalute(&self, tuple: &Tuple, schema: &Schema) -> Value {
-        self.get_child_at(0).evalute(tuple, schema)
+        let left_arg = self.get_child_at(0).evalute(tuple, schema);
+        let right_arg = self.get_child_at(1).evalute(tuple, schema);
+
+        ValueFactory::get_boolean_value(Self::performe_compare(self.cmp_type.clone(), &left_arg, &right_arg))
     }
 
     fn evalute_join(&self, tuple_left: &Tuple, schema_left: &Schema, tuple_right: &Tuple, schema_right: &Schema) -> Value {
