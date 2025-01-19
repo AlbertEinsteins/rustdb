@@ -284,7 +284,7 @@ pub struct FilterPlan {
 
 
 impl FilterPlan {
-    pub fn new(schema: SchemaRef, children: Vec<PlanNodeRef>, predicate: BoundExpression) -> Self {
+    pub fn new(schema: SchemaRef, children: Vec<PlanNodeRef>, predicate: ExpressionRef) -> Self {
         Self { output_schema: schema, children, predicate }
     }
 }

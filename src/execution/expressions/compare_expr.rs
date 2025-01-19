@@ -6,7 +6,7 @@ use crate::{catalog::schema::Schema, storage::page_based::table::tuple::Tuple, t
 
 use super::expr::{Expression, ExpressionFeat, ExpressionRef};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum CmpType {
     Equal,
     NotEqual,
@@ -29,7 +29,7 @@ impl Display for CmpType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CompareExpr {
     pub cmp_type: CmpType,
     
@@ -62,6 +62,7 @@ impl ExpressionFeat for CompareExpr {
     fn evalute_join(&self, tuple_left: &Tuple, schema_left: &Schema, tuple_right: &Tuple, schema_right: &Schema) -> Value {
         let lhs = self.get_child_at(0).evalute(tuple_left, schema_left);
         let rhs = self.get_child_at(1).evalute(tuple_right, schema_right);
+        
     }
 
     fn get_return_type(&self) -> TypeId {
@@ -69,7 +70,7 @@ impl ExpressionFeat for CompareExpr {
     }
 
     fn to_string(&self) -> String {
-        format!("({}{}{})", self.get_child_at(0).to_string(), self.cmd_type, self.get_child_at(1).to_string())
+        format!("({}{}{})", self.get_child_at(0).to_string(), self.cmp_type, self.get_child_at(1).to_string())
     }
 
 }

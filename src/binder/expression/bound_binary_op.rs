@@ -72,7 +72,7 @@ impl BoundBinaryOp {
 
 impl BoundExpressionFeat for BoundBinaryOp {
     fn to_string(&self) -> String {
-        format!("({}{}{})", self.left_arg.to_string(), self.op_name, self.right_arg.to_string())
+        format!("({}{}{})", self.left_arg.to_string(), self.op, self.right_arg.to_string())
     }
 
     fn has_aggregation(&self) -> bool {
