@@ -390,7 +390,7 @@ impl Binder {
                         )
                     )
                 )
-            }
+            } 
             // TODO: other types handles
             _ => {
                return Err(String::from("Not support expr"));

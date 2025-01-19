@@ -6,3 +6,4 @@ pub mod varchar_type;
 pub mod type_utils;
 pub mod limits;
 pub mod value_factory;
+pub mod boolean_type;

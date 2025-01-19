@@ -1,13 +1,16 @@
+use std::fmt::Display;
+
 use sqlparser::ast::BinaryOperator;
 
 use crate::binder::bound_expression::{BoundExpression, BoundExpressionFeat};
 
 #[derive(Debug)]
 pub struct BoundBinaryOp {
-    op: BinaryOpType,
-    left_arg: BoundExpression,
-    right_arg: BoundExpression,
+    pub op: BinaryOpType,
+    pub left_arg: BoundExpression,
+    pub right_arg: BoundExpression,
 }
+
 
 #[derive(Debug)]
 pub enum BinaryOpType {
@@ -22,6 +25,30 @@ pub enum BinaryOpType {
     Lt,
     LtEq,
     NEq,
+    Eq,
+
+    // and or
+    And,
+    Or,
+}
+
+impl Display for BinaryOpType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Plus => { f.write_str("+") },
+            Self::Sub => { f.write_str("-") },
+            Self::Mul => { f.write_str("*") },
+            Self::Div => { f.write_str("/") },
+            Self::Gt => { f.write_str(">") },
+            Self::GtEq => { f.write_str(">=") },
+            Self::Lt => { f.write_str("<") },
+            Self::LtEq => { f.write_str("<=") },
+            Self::NEq => { f.write_str("!=") },
+            Self::Eq => { f.write_str("=") },
+            Self::And => { f.write_str("and") },
+            Self::Or => { f.write_str("or") }
+        }
+    }
 }
 
 impl From<BinaryOperator> for BinaryOpType {
@@ -51,7 +78,15 @@ impl From<BinaryOperator> for BinaryOpType {
             BinaryOperator::LtEq => {
                 Self::LtEq
             }
-
+            BinaryOperator::Eq => {
+                Self::Eq
+            },
+            BinaryOperator::And => {
+                Self::And
+            },
+            BinaryOperator::Or => {
+                Self::Or
+            },
             _ => {
                 panic!("Not support operator type");
             }

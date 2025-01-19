@@ -2,7 +2,7 @@
 
 use std::{sync::Arc, fmt::Display, process::ChildStderr};
 
-use crate::{binder::{bound_expression::BoundExpression, table_ref::bound_base_table::BoundBaseTableRef}, catalog::{column::Column, schema::{Schema, SchemaRef}}, common::config::{table_id_t, VARCHAR_DEFAULT_LENGTH}, execution::expressions::expr::ExpressionRef, typedef::type_id::TypeId};
+use crate::{binder::{bound_expression::BoundExpression, table_ref::bound_base_table::BoundBaseTableRef}, catalog::{column::Column, schema::{Schema, SchemaRef}}, common::config::{table_id_t, VARCHAR_DEFAULT_LENGTH}, execution::{executor_context::ExecutorContextRef, expressions::expr::ExpressionRef}, typedef::type_id::TypeId};
 
 
 
@@ -14,7 +14,8 @@ pub enum PlanNode {
     SeqScan(SeqScanPlan),
     Proj(ProjectionPlan),
     Insert(InsertPlan),
-    Values(ValuesPlan)
+    Values(ValuesPlan),
+    Filter(FilterPlan),
 }
 
 impl PlanNode {
@@ -24,6 +25,7 @@ impl PlanNode {
             PlanNode::Proj(proj) => { proj.output_schema() },
             PlanNode::Insert(insert) => { insert.output_schema() },
             PlanNode::Values(values) => { values.output_schema() },
+            PlanNode::Filter(filter) => { filter.output_schema() },
         }
     }
 }
@@ -37,6 +39,7 @@ impl Display for PlanNode {
             Self::Proj(proj) => { f.write_str(&proj.to_string(true)) }
             Self::Insert(insert) => { f.write_str(&insert.to_string(true)) },
             Self::Values(vals) => { f.write_str(&vals.to_string(true)) },
+            Self::Filter(filter) => { f.write_str(&filter.to_string(true)) },
         }
     }
 }
@@ -276,16 +279,26 @@ impl PlanNodeFeat for InsertPlan {
 //============================= Filter Plan =========================//
 // related to where clause
 
+#[derive(Debug)]
 pub struct FilterPlan {
     pub output_schema: SchemaRef,
     pub children: Vec<PlanNodeRef>,
-    pub predicate: ExpressionRef
+    pub predicate: ExpressionRef,
 }
 
 
 impl FilterPlan {
     pub fn new(schema: SchemaRef, children: Vec<PlanNodeRef>, predicate: ExpressionRef) -> Self {
-        Self { output_schema: schema, children, predicate }
+        Self {
+            output_schema: schema,
+            children,
+            predicate,
+        }
+    }
+
+    pub fn get_child_plan(&self) -> PlanNodeRef {
+        assert!(1 == self.children.len(), "The filter plan could only have one child");
+        self.children[0].clone()
     }
 }
 

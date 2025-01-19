@@ -1,8 +1,8 @@
 #![allow(warnings)]
 
-use std::sync::Arc;
+use std::{borrow::Borrow, sync::Arc};
 
-use crate::{binder::{bound_table_ref::{BoundTable, BoundTableRef}, statement::select_stmt::SelectStmt}, catalog::schema::Schema, execution::plans::plan::{PlanNode, PlanNodeRef, ProjectionPlan, ValuesPlan}};
+use crate::{binder::{bound_table_ref::{BoundTable, BoundTableRef}, statement::select_stmt::SelectStmt}, catalog::schema::{Schema, SchemaRef}, execution::plans::plan::{FilterPlan, PlanNode, PlanNodeRef, ProjectionPlan, ValuesPlan}};
 
 use super::planner::Planner;
 
@@ -24,7 +24,12 @@ impl Planner {
 
         // plan where
         if let Some(where_cond) = &select.where_by {
-            todo!()
+            let (name, expr) = self.plan_expression(where_cond.as_ref(), &vec![plan.clone()])?;
+            let out_schema = plan.get_output_schema();
+            
+            plan = PlanNodeRef::new(PlanNode::Filter(
+                FilterPlan::new(SchemaRef::new(Schema::copy(out_schema)), vec![plan], expr, )
+            ));
         }
 
         // plan agg or normal select
